@@ -23,16 +23,11 @@ use ProxyManager\Proxy\GhostObjectInterface;
 use ProxyManager\ProxyGenerator\Assertion\CanProxyAssertion;
 use ProxyManager\ProxyGenerator\LazyLoading\MethodGenerator\StaticProxyConstructor;
 use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\CallInitializer;
+use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\Factory;
 use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\GetProxyInitializer;
 use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\InitializeProxy;
 use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\IsProxyInitialized;
 use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\LazyLoadingMethodInterceptor;
-use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\MagicClone;
-use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\MagicGet;
-use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\MagicIsset;
-use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\MagicSet;
-use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\MagicSleep;
-use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\MagicUnset;
 use ProxyManager\ProxyGenerator\LazyLoadingGhost\MethodGenerator\SetProxyInitializer;
 use ProxyManager\ProxyGenerator\LazyLoadingGhost\PropertyGenerator\InitializationTracker;
 use ProxyManager\ProxyGenerator\LazyLoadingGhost\PropertyGenerator\InitializerProperty;
@@ -90,6 +85,15 @@ class LazyLoadingGhostGenerator implements ProxyGeneratorInterface
             Properties::fromReflectionClass($originalClass)
         );
 
+        $factoryMethod = new Factory(
+            $originalClass,
+            $initializer,
+            $init,
+            $publicProperties,
+            $protectedProperties,
+            $privateProperties
+        );
+
         array_map(
             function (MethodGenerator $generatedMethod) use ($originalClass, $classGenerator) {
                 ClassGeneratorUtils::addMethodIfNotFinal($originalClass, $classGenerator, $generatedMethod);
@@ -111,40 +115,12 @@ class LazyLoadingGhostGenerator implements ProxyGeneratorInterface
                         $initializer,
                         Properties::fromReflectionClass($originalClass)
                     ),
-                    new MagicGet(
-                        $originalClass,
-                        $initializer,
-                        $init,
-                        $publicProperties,
-                        $protectedProperties,
-                        $privateProperties
-                    ),
-                    new MagicSet(
-                        $originalClass,
-                        $initializer,
-                        $init,
-                        $publicProperties,
-                        $protectedProperties,
-                        $privateProperties
-                    ),
-                    new MagicIsset(
-                        $originalClass,
-                        $initializer,
-                        $init,
-                        $publicProperties,
-                        $protectedProperties,
-                        $privateProperties
-                    ),
-                    new MagicUnset(
-                        $originalClass,
-                        $initializer,
-                        $init,
-                        $publicProperties,
-                        $protectedProperties,
-                        $privateProperties
-                    ),
-                    new MagicClone($originalClass, $initializer, $init, $publicProperties),
-                    new MagicSleep($originalClass, $initializer, $init, $publicProperties),
+                    $factoryMethod->magicGet(),
+                    $factoryMethod->magicSet(),
+                    $factoryMethod->magicIsset(),
+                    $factoryMethod->magicUnset(),
+                    $factoryMethod->magicClone(),
+                    $factoryMethod->magicSleep(),
                     new SetProxyInitializer($initializer),
                     new GetProxyInitializer($initializer),
                     new InitializeProxy($initializer, $init),
