@@ -1,3 +1,7 @@
+---
+title: Lazy Loading Value Holder Proxy
+---
+
 # Lazy Loading Value Holder Proxy
 
 A lazy loading value holder proxy is a virtual proxy that wraps and lazily initializes a "real" instance of the proxied
@@ -199,4 +203,4 @@ some memory since the proxy won't contain useless inherited properties.
 
 ## Tuning performance for production
 
-See [Tuning ProxyManager for Production](https://github.com/Ocramius/ProxyManager/blob/master/docs/tuning-for-production.md).
+See [Tuning ProxyManager for Production](tuning-for-production.md).

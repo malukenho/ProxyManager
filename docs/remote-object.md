@@ -1,3 +1,7 @@
+---
+title: Remote Object Proxy
+---
+
 # Remote Object Proxy
 
 The remote object implementation is a mechanism that enables an local object to control an other object on an other server.
@@ -97,4 +101,4 @@ your own adapter instance to your factory at construction time
 
 ## Tuning performance for production
 
-See [Tuning ProxyManager for Production](https://github.com/Ocramius/ProxyManager/blob/master/docs/tuning-for-production.md).
+See [Tuning ProxyManager for Production](tuning-for-production.md).

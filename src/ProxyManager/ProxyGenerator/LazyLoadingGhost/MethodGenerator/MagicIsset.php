@@ -37,28 +37,11 @@ use Zend\Code\Generator\PropertyGenerator;
 class MagicIsset extends MagicMethodGenerator
 {
     /**
-     * @param ReflectionClass        $originalClass
-     * @param PropertyGenerator      $initializerProperty
-     * @param MethodGenerator        $callInitializer
-     * @param PublicPropertiesMap    $publicProperties
-     * @param ProtectedPropertiesMap $protectedProperties
-     * @param PrivatePropertiesMap   $privateProperties
+     * @var string
      */
-    public function __construct(
-        ReflectionClass $originalClass,
-        PropertyGenerator $initializerProperty,
-        MethodGenerator $callInitializer,
-        PublicPropertiesMap $publicProperties,
-        ProtectedPropertiesMap $protectedProperties,
-        PrivatePropertiesMap $privateProperties
-    ) {
-        parent::__construct($originalClass, '__isset', [new ParameterGenerator('name')]);
+    private $callParentTemplate = <<<'PHP'
+%s
 
-        $override   = $originalClass->hasMethod('__isset');
-
-        $this->setDocblock(($override ? "{@inheritDoc}\n" : '') . '@param string $name');
-
-        $callParentTemplate = <<<'PHP'
 if (isset(self::$%s[$name])) {
     return isset($this->$name);
 }
@@ -111,31 +94,50 @@ if (isset(self::$%s[$name])) {
     }
 }
 
+%s
 PHP;
 
-        $callParent = sprintf(
-            $callParentTemplate,
-            $publicProperties->getName(),
-            $protectedProperties->getName(),
-            $protectedProperties->getName(),
-            $privateProperties->getName(),
-            $privateProperties->getName(),
-            $privateProperties->getName()
-        );
+    /**
+     * @param ReflectionClass        $originalClass
+     * @param PropertyGenerator      $initializerProperty
+     * @param MethodGenerator        $callInitializer
+     * @param PublicPropertiesMap    $publicProperties
+     * @param ProtectedPropertiesMap $protectedProperties
+     * @param PrivatePropertiesMap   $privateProperties
+     */
+    public function __construct(
+        ReflectionClass $originalClass,
+        PropertyGenerator $initializerProperty,
+        MethodGenerator $callInitializer,
+        PublicPropertiesMap $publicProperties,
+        ProtectedPropertiesMap $protectedProperties,
+        PrivatePropertiesMap $privateProperties
+    ) {
+        parent::__construct($originalClass, '__isset', [new ParameterGenerator('name')]);
 
-        if ($override) {
-            $callParent .= 'return parent::__isset($name);';
-        } else {
-            $callParent .= PublicScopeSimulator::getPublicAccessSimulationCode(
+        $override = $originalClass->hasMethod('__isset');
+
+        $this->setDocblock(($override ? "{@inheritDoc}\n" : '') . '@param string $name');
+
+        $parentAccess = 'return parent::__isset($name);';
+
+        if (! $override) {
+            $parentAccess = PublicScopeSimulator::getPublicAccessSimulationCode(
                 PublicScopeSimulator::OPERATION_ISSET,
                 'name'
             );
         }
 
-        $this->setBody(
+        $this->setBody(sprintf(
+            $this->callParentTemplate,
             '$this->' . $initializerProperty->getName() . ' && $this->' . $callInitializer->getName()
-            . '(\'__isset\', array(\'name\' => $name));'
-            . "\n\n" . $callParent
-        );
+            . '(\'__isset\', array(\'name\' => $name));',
+            $publicProperties->getName(),
+            $protectedProperties->getName(),
+            $protectedProperties->getName(),
+            $privateProperties->getName(),
+            $privateProperties->getName(),
+            $parentAccess
+        ));
     }
 }

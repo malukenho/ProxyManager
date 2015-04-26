@@ -1,3 +1,7 @@
+---
+title: Null Object Proxy
+---
+
 # Null Object Proxy
 
 A Null Object proxy is a [null object pattern](http://en.wikipedia.org/wiki/Null_Object_pattern) implementation.
@@ -94,4 +98,4 @@ methods defined by the interface itself, and like with the object, the methods a
 
 ## Tuning performance for production
 
-See [Tuning ProxyManager for Production](https://github.com/Ocramius/ProxyManager/blob/master/docs/tuning-for-production.md).
+See [Tuning ProxyManager for Production](tuning-for-production.md).

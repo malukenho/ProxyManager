@@ -1,3 +1,7 @@
+---
+title: Lazy Loading Ghost Object Proxies
+---
+
 # Lazy Loading Ghost Object Proxies
 
 A lazy loading ghost object proxy is a ghost proxy that looks exactly like the real instance of the proxied subject,
@@ -203,4 +207,4 @@ some memory since the proxy won't contain any properties.
 
 ## Tuning performance for production
 
-See [Tuning ProxyManager for Production](https://github.com/Ocramius/ProxyManager/blob/master/docs/tuning-for-production.md).
+See [Tuning ProxyManager for Production](tuning-for-production.md).
