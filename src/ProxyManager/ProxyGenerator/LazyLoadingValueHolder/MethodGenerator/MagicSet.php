@@ -59,7 +59,7 @@ class MagicSet extends MagicMethodGenerator
         $valueHolder = $valueHolderProperty->getName();
         $callParent  = '';
 
-        $this->setDocblock(
+        $this->setDocBlock(
             ($originalClass->hasMethod('__set') ? "{@inheritDoc}\n" : '') . "@param string \$name\n@param mixed \$value"
         );
 
